@@ -1,8 +1,6 @@
 import numpy as np
 import json
-import torch
 import laion_clap
-import os
 
 
 model = laion_clap.CLAP_Module(enable_fusion=False)

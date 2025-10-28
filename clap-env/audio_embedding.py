@@ -1,12 +1,10 @@
 import numpy as np
-import librosa
-import torch
 import laion_clap
 import os
 import glob
 
 model = laion_clap.CLAP_Module(enable_fusion=False)
-model.load_ckpt() # download the default pretrained checkpoint
+model.load_ckpt() 
 
 # Find all audio files in resampled48 directory
 input_dir = "/home/lucaa/audio_data/resampled48"
@@ -16,8 +14,7 @@ audio_files = sorted(audio_files)  # Ensure consistent ordering
 
 print(f"Found {len(audio_files)} audio files to process")
 
-# Process files in batches to avoid OOM
-batch_size = 8  # Adjust based on your GPU memory
+batch_size = 8  
 all_embeddings = []
 
 for i in range(0, len(audio_files), batch_size):
