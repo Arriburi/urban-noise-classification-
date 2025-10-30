@@ -4,9 +4,9 @@ import json
 import os
 
 # Config
-TEXT_CLASS = "Techno"  
+TEXT_CLASS = "Speech"  
 RADIUS_THRESHOLD = 0.7  
-PRINT_LIMIT = 10  # Number of results to print
+PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
 
 # File paths
@@ -23,9 +23,8 @@ def load_data():
     with open(CLASSES_FILE, 'r') as f:
         classes = json.load(f)
     text_embeddings = np.load(TEXT_EMBEDDINGS_FILE)
-    print(f"Text embeddings shape: {text_embeddings.shape}")
+    #print(f"Text embeddings shape: {text_embeddings.shape}")
     audio_embeddings = np.load(AUDIO_EMBEDDINGS_FILE)
-    print(f"Audio embeddings shape: {audio_embeddings.shape}")
     
     # Load audio paths
     with open(AUDIO_PATHS_FILE, 'r', encoding='utf-8') as f:
@@ -35,7 +34,6 @@ def load_data():
 
 def find_text_embedding(classes, text_embeddings, target_class):
     idx = classes.index(target_class)
-    print(f"Found text embedding for '{target_class}' at index {idx}")
     return text_embeddings[idx]
 
 def find_adaptive_threshold(similarities, target_count=1000):
@@ -51,8 +49,8 @@ def find_similar_audio_files(text_embedding, audio_embeddings, audio_paths, targ
     print(f"Using threshold: {threshold}")
     similar_indices = np.where(similarities >= threshold)[0]
     
-    print(f"Found {len(similar_indices)} audio files above threshold {threshold}")
-    print(f"Similarity range: {similarities.min():.4f} to {similarities.max():.4f}")
+    #print(f"Found {len(similar_indices)} audio files above threshold {threshold}")
+    #print(f"Similarity range: {similarities.min():.4f} to {similarities.max():.4f}")
     
     if len(similar_indices) > 0:
         print(f"\nTop {min(PRINT_LIMIT, len(similar_indices))} most similar files:")
@@ -69,7 +67,6 @@ def compute_centroid(similar_indices, audio_embeddings):
     centroid /= np.linalg.norm(centroid) + 1e-12
     
     print(f"Computed mean embedding from {len(similar_indices)} similar files")
-    print(f"Mean embedding norm: {np.linalg.norm(centroid):.4f}") ## debug print
     
     return centroid
 
@@ -88,14 +85,20 @@ def radius_search(centroid, audio_embeddings, audio_paths, threshold):
         'similarity': similarities
     }).sort_values('similarity', ascending=False)
     
+    def print_rows(indices, label):
+        print(f"\n{label} {len(indices)} files within radius:")
+        for i, idx in enumerate(indices):
+            print(f"{i+1}. {similarities[idx]:.4f} - {audio_paths[idx]}")
+
     n_to_show = min(PRINT_LIMIT, len(radius_indices))
-    print(f"\nTop {n_to_show} files within radius:")
-    top_rows = results_df.head(n_to_show)
-    for i in range(n_to_show):
-        row = top_rows.iloc[i]
-        filename = row['filename']
-        score = row['similarity']
-        print(f"{i+1}. {score:.4f} - {filename}")
+    if n_to_show > 0:
+        # Top N 
+        top_indices = radius_indices[np.argsort(similarities[radius_indices])[::-1][:n_to_show]]
+        print_rows(top_indices, "Top")
+
+        # Bottom N (just above threshold)
+        bottom_indices = radius_indices[np.argsort(similarities[radius_indices])[:n_to_show]]
+        print_rows(bottom_indices, "Bottom threshold")
     
     return results_df, radius_indices
 
@@ -123,11 +126,6 @@ def main():
     results_df, radius_indices = radius_search(
         centroid, audio_embeddings, audio_paths, RADIUS_THRESHOLD
     )
-
-    
-    print(f"\n=== PIPELINE COMPLETE ===")
-    print(f"Initial similar files: {len(similar_indices)}")
-    print(f"Files within radius: {len(radius_indices)}")
 
 if __name__ == "__main__":
     main()
