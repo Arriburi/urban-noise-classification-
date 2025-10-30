@@ -4,7 +4,7 @@ import json
 import os
 
 # Config
-TEXT_CLASS = "Speech"  
+TEXT_CLASS = "Drum"  
 RADIUS_THRESHOLD = 0.7  
 PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
@@ -14,10 +14,6 @@ CLASSES_FILE = "/home/lucaa/audio_data/unc/clap-env/classes.json"
 TEXT_EMBEDDINGS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_text_embeddings.npy"
 AUDIO_EMBEDDINGS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_embeddings.npy"
 AUDIO_PATHS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_paths.txt"
-
-# Output
-PROTOTYPE_OUTPUT = f"/home/lucaa/audio_data/unc/clap-env/prototype_{TEXT_CLASS.lower()}_clap.npz"
-RESULTS_OUTPUT = f"/home/lucaa/audio_data/unc/clap-env/results_{TEXT_CLASS.lower()}_clap.csv"
 
 def load_data():
     with open(CLASSES_FILE, 'r') as f:
