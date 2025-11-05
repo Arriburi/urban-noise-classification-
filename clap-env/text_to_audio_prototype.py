@@ -12,20 +12,16 @@ TARGET_SEED_COUNT = 100  # target number of initial candidates
 # File paths
 CLASSES_FILE = "/home/lucaa/audio_data/unc/clap-env/classes.json"
 TEXT_EMBEDDINGS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_text_embeddings.npy"
-AUDIO_EMBEDDINGS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_embeddings.npy"
-AUDIO_PATHS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_paths.txt"
+DATASET_FILE = "/home/lucaa/audio_data/unc/clap-env/dataset.npz"
 
 def load_data():
     with open(CLASSES_FILE, 'r') as f:
         classes = json.load(f)
     text_embeddings = np.load(TEXT_EMBEDDINGS_FILE)
-    #print(f"Text embeddings shape: {text_embeddings.shape}")
-    audio_embeddings = np.load(AUDIO_EMBEDDINGS_FILE)
-    
-    # Load audio paths
-    with open(AUDIO_PATHS_FILE, 'r', encoding='utf-8') as f:
-        audio_paths = [line.strip() for line in f if line.strip()]
-    
+    data = np.load(DATASET_FILE, allow_pickle=True)
+    audio_embeddings = data["embeddings"]
+    audio_paths = data["paths"].tolist()
+    # classified = data["classified"]  # available if needed
     return classes, text_embeddings, audio_embeddings, audio_paths
 
 def find_text_embedding(classes, text_embeddings, target_class):
