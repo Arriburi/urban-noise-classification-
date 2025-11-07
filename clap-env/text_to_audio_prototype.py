@@ -1,23 +1,21 @@
 import numpy as np
 import pandas as pd
-import json
-import os
 
 # Config
-TEXT_CLASS = "Drum"  
+TEXT_CLASS = "Rain"  
 RADIUS_THRESHOLD = 0.7  
 PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
 
 # File paths
-CLASSES_FILE = "/home/lucaa/audio_data/unc/clap-env/classes.json"
-TEXT_EMBEDDINGS_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_text_embeddings.npy"
+TEXT_DATA_FILE = "/home/lucaa/audio_data/unc/clap-env/text_data.npz"
 DATASET_FILE = "/home/lucaa/audio_data/unc/clap-env/dataset.npz"
 
 def load_data():
-    with open(CLASSES_FILE, 'r') as f:
-        classes = json.load(f)
-    text_embeddings = np.load(TEXT_EMBEDDINGS_FILE)
+    text_data = np.load(TEXT_DATA_FILE, allow_pickle=True)
+    classes = text_data["class_names"].tolist()
+    text_embeddings = text_data["embeddings"]
+    
     data = np.load(DATASET_FILE, allow_pickle=True)
     audio_embeddings = data["embeddings"]
     audio_paths = data["paths"].tolist()
@@ -115,9 +113,7 @@ def main():
         return
     
     # Radius search using mean embedding
-    results_df, radius_indices = radius_search(
-        centroid, audio_embeddings, audio_paths, RADIUS_THRESHOLD
-    )
+    radius_search(centroid, audio_embeddings, audio_paths, RADIUS_THRESHOLD)
 
 if __name__ == "__main__":
     main()

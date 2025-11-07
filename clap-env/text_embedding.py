@@ -2,7 +2,6 @@ import numpy as np
 import json
 import laion_clap
 
-
 model = laion_clap.CLAP_Module(enable_fusion=False)
 model.load_ckpt() 
 
