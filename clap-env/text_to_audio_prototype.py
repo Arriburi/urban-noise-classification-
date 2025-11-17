@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 # Config
-TEXT_CLASS = "Rain"  
+TEXT_CLASS = "Speech"  
 RADIUS_THRESHOLD = 0.7  
 PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
@@ -26,7 +26,7 @@ def find_text_embedding(classes, text_embeddings, target_class):
     idx = classes.index(target_class)
     return text_embeddings[idx]
 
-def find_adaptive_threshold(similarities, target_count=1000):
+def find_adaptive_threshold(similarities, target_count=100):
     sorted_sims = sorted(similarities, reverse=True)
     idx = min(target_count, len(sorted_sims))
     threshold = sorted_sims[idx - 1]

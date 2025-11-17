@@ -52,7 +52,7 @@ def next_embedding(previous_embedding, mode, cluster_name):
     classified_embeddings = all_embeddings[classified]
     classified_paths = all_paths[classified]
 
-    if mode == "similar":
+    if mode == "similar": ##does it improve speed if we do classify the same things, find paper
         similarities_array = np.dot(unclassified_embeddings, previous_embedding)
         max_similarity_index = np.argmax(similarities_array)
         return unclassified_paths[max_similarity_index]
