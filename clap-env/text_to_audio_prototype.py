@@ -2,19 +2,19 @@ import numpy as np
 import pandas as pd
 
 # Config
-TEXT_CLASS = "Speech"  
+TEXT_CLASS = "Rain"  
 RADIUS_THRESHOLD = 0.7  
 PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
 
 # File paths
-TEXT_DATA_FILE = "/home/lucaa/audio_data/unc/clap-env/text_data.npz"
+TEXT_DATA_FILE = "/home/lucaa/audio_data/unc/clap-env/clap_text_embeddings.npz"
 DATASET_FILE = "/home/lucaa/audio_data/unc/clap-env/dataset.npz"
 
 def load_data():
-    text_data = np.load(TEXT_DATA_FILE, allow_pickle=True)
-    classes = text_data["class_names"].tolist()
-    text_embeddings = text_data["embeddings"]
+    npz_data = np.load(TEXT_DATA_FILE, allow_pickle=True)
+    classes = npz_data["names"].tolist()
+    text_embeddings = npz_data["embeddings"]
     
     data = np.load(DATASET_FILE, allow_pickle=True)
     audio_embeddings = data["embeddings"]
