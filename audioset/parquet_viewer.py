@@ -1,15 +1,27 @@
 import pandas as pd
-
-df = pd.read_parquet("/home/lucaa/audio_data/unc/audioset/audioset_eval.parquet")
-print(df.head())    
-
-# print the number of rows and columns
-print(df.shape)
-# print the column names
-print(df.columns)
-
-# print the data types of the columns
-print(df.dtypes)
+import subprocess
+import os
+import shutil
 
 pd.set_option("display.max_colwidth", None)
-print(df.file_path.head())
+
+temp_dir = "/home/lucaa/audio_data/unc/audioset/tmp_wav"
+if os.path.exists(temp_dir):
+    shutil.rmtree(temp_dir)
+os.makedirs(temp_dir)
+
+def flac_to_wav(flac_path):
+    """Convert flac to wav and return temp wav path"""
+    filename = os.path.basename(flac_path).replace('.flac', '.wav')
+    wav_path = os.path.join(temp_dir, filename)
+    if not os.path.exists(wav_path):
+        subprocess.run(["ffmpeg", "-i", flac_path, "-y", wav_path], 
+                      stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    return wav_path
+
+df = pd.read_parquet("/home/lucaa/audio_data/unc/audioset/audioset_eval.parquet")
+
+display_df = df.tail(5).copy()
+display_df["wav_path"] = display_df["file_path"].apply(flac_to_wav)
+
+print(display_df[["human_labels", "wav_path"]].to_string(index=False))
