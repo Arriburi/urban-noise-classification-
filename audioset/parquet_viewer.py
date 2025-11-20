@@ -11,7 +11,6 @@ if os.path.exists(temp_dir):
 os.makedirs(temp_dir)
 
 def flac_to_wav(flac_path):
-    """Convert flac to wav and return temp wav path"""
     filename = os.path.basename(flac_path).replace('.flac', '.wav')
     wav_path = os.path.join(temp_dir, filename)
     if not os.path.exists(wav_path):
@@ -21,7 +20,7 @@ def flac_to_wav(flac_path):
 
 df = pd.read_parquet("/home/lucaa/audio_data/unc/audioset/audioset_eval.parquet")
 
-display_df = df.tail(5).copy()
+display_df = df.sample(5).copy()
 display_df["wav_path"] = display_df["file_path"].apply(flac_to_wav)
 
 print(display_df[["human_labels", "wav_path"]].to_string(index=False))

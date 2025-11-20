@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 # Config
-TEXT_CLASS = "Rain"  
+TEXT_CLASS = "Music"  
 RADIUS_THRESHOLD = 0.7  
 PRINT_LIMIT = 5  
 TARGET_SEED_COUNT = 100  # target number of initial candidates
