@@ -64,7 +64,7 @@ def main() -> None:
         .apply(lambda labels: [label.strip() for label in labels if label])
         .apply(lambda ids: map_labels_to_names(ids, id_to_name))
     )
-    df["clap_labels"] = [[] for _ in range(len(df))]
+    df["clap_labels"] = [None] * len(df)
     df["clap_score"] = [None] * len(df)
     df["is_classified"] = False
 
