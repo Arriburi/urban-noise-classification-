@@ -50,7 +50,7 @@ def run_simulation(mode="similar", steps=100):
     last_embedding = first_embedding
     print(f"Start Seed: Index {first_pick}, Label: '{first_label}' ({first_score:.2f})")
     
-    # 4. Simulation Loop
+    # sim Loop
     for step in range(steps):
         print(f"Step {step+1}/{steps}...", end="\r")
         
@@ -78,19 +78,18 @@ def run_simulation(mode="similar", steps=100):
         df.at[next_embedding, "clap_score"] = score
         df.at[next_embedding, "is_classified"] = True
         
-        # Update state
+        
         last_embedding = audio_embedding
         
         print(f"Step {step+1}: Classified Index {next_embedding} as '{label}' ({score:.2f})")
             
     print("\nSimulation finished.")
     
-    # Save results (ONLY Classified items)
-    classified_df = df[df["is_classified"] == True].copy()
+    classified_df = df.loc[df["is_classified"], ["video_id", "clap_labels", "human_labels"]].reset_index(drop=True)
     
     output_filename = f"simulation_results_{mode}_{steps}.parquet"
     output_path = os.path.join(os.path.dirname(__file__), output_filename)
-    classified_df.to_parquet(output_path)
+    classified_df.to_parquet(output_path, index=False)
     print(f"Saved {len(classified_df)} labeled items to {output_path}")
 
 if __name__ == "__main__":
