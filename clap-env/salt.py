@@ -14,16 +14,7 @@ def hierarchical_match(clap_std, audio_std, max_hops: int | None = None):
     if clap_std == audio_std:
         return True, clap_std
 
-    # get ALL ancestors in set/list form
-    clap_ancestors = e.get_coarse_labels_for_std_label(clap_std)
-    audio_ancestors = e.get_coarse_labels_for_std_label(audio_std)
-
-    if clap_std in audio_ancestors:
-        return True, clap_std
-    if audio_std in clap_ancestors:
-        return True, audio_std
-
-    # get paths to label returns a list of paths (list of lists)
+    # Get paths from root to each label - handles ALL cases including ancestor relationships
     clap_paths = e.get_paths_to_label(clap_std)
     audio_paths = e.get_paths_to_label(audio_std)
     

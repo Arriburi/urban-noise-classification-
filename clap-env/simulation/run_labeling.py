@@ -53,9 +53,9 @@ def run_simulation(mode="similar", steps=100):
     last_embedding = first_embedding
     print(f"Start Seed: Index {first_pick}, Label: '{first_label}' ({first_score:.2f})")
 
-    # sim Loop
-    for step in range(steps):
-        print(f"Step {step+1}/{steps}...", end="\r")
+    # sim Loop (start from 2 since step 1 was the initial pick)
+    for step in range(2, steps + 1):
+        print(f"Step {step}/{steps}...", end="\r")
 
         next_embedding = None
 
@@ -83,7 +83,7 @@ def run_simulation(mode="similar", steps=100):
 
         last_embedding = audio_embedding
 
-        print(f"Step {step+1}: Classified Index {next_embedding} as '{label}' ({score:.2f})")
+        print(f"Step {step}: Classified Index {next_embedding} as '{label}' ({score:.2f})")
             
     print("\nSimulation finished.")
 
@@ -100,7 +100,7 @@ def run_simulation(mode="similar", steps=100):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", choices=["similar", "diverse"], default="similar")
-    parser.add_argument("--steps", type=int, default=10)
+    parser.add_argument("--steps", type=int, default=1000)
     args = parser.parse_args()
     
     run_simulation(mode=args.mode, steps=args.steps)
