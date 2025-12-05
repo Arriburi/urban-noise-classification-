@@ -1,5 +1,6 @@
 import os
 import sys
+from joblib import Parallel, delayed
 
 import pandas as pd
 
@@ -33,21 +34,31 @@ def add_salt_columns(input_path, output_path=None):
     df = pd.read_parquet(input_path)
     print(f"Loaded {len(df)} rows from {input_path}", flush=True)
 
+    unique_combos = {}
+    for _, row in df.iterrows():
+        key = (row["clap_labels"], tuple(row["human_labels"]))
+        if key not in unique_combos:
+            unique_combos[key] = (row["clap_labels"], row["human_labels"])
+
+    # PARALLEL COMPUTATION
+    tasks = []
+    for clap_label, human_labels in unique_combos.values():
+        task = delayed(compute_salt_result)(clap_label, human_labels)
+        tasks.append(task)
+    results = Parallel(n_jobs=-1)(tasks)
+    
     cache = {}
+    unique_keys = list(unique_combos.keys())
+    for i in range(len(unique_keys)):
+        key = unique_keys[i]       
+        result = results[i]        
+        cache[key] = result
+
     salt_match = []
     salt_lca = []
 
-    for i, (idx, row) in enumerate(df.iterrows()):
-        if i > 0 and i % 100 == 0:
-            print(f"Progress: {i}/{len(df)} rows processed", flush=True)
-
-        clap_label = row["clap_labels"]
-        human_labels = row["human_labels"]
-        key = (clap_label, tuple(human_labels))
-        
-        if key not in cache:
-            cache[key] = compute_salt_result(clap_label, human_labels)
-        
+    for _, row in df.iterrows():
+        key = (row["clap_labels"], tuple(row["human_labels"]))
         match, lca = cache[key]
         salt_match.append(match)
         salt_lca.append(lca)
@@ -55,20 +66,20 @@ def add_salt_columns(input_path, output_path=None):
     df["salt_match"] = salt_match
     df["salt_lca"] = salt_lca
 
-    print(f"\nUnique (clap_label, human_labels) combinations: {len(cache)}")
+    print(f"\nUnique combinations: {len(cache)}")
 
     # Save
-    if output_path is None:
-        output_path = "/home/lucaa/audio_data/unc/clap-env/simulation/salt_matches.parquet"
+    print(f"Saving to: {output_path}", flush=True)
     df.to_parquet(output_path, index=False)
-    print(f"\nWrote SALT-augmented results to {output_path}")
     
     return df
 
 
 def main():
-    input_path = "/home/lucaa/audio_data/unc/clap-env/simulation/simulation_results_similar_5000.parquet"
-    add_salt_columns(input_path)
+    INPUT_PATH = "/home/lucaa/audio_data/unc/clap-env/simulation/simulation_results_similar_5000.parquet"
+    OUTPUT_PATH = "/home/lucaa/audio_data/unc/clap-env/simulation/salt_matches.parquet"
+
+    add_salt_columns(INPUT_PATH, OUTPUT_PATH)
 
 
 if __name__ == "__main__":
